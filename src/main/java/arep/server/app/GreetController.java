@@ -8,6 +8,7 @@ import arep.server.app.notations.RestController;
 public class GreetController {
     @GetMapping("/greet")
     public String greet(@RequestParam(value = "name", DefaultValue = "Guest") String name) {
-        return "Hello World";
+        System.out.println("Hello " + name);
+        return "Hello " + name;
     }
 }

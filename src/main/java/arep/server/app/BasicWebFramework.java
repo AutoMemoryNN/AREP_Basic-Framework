@@ -5,6 +5,8 @@ import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hc.core5.http.ClassicHttpResponse;
+
 import arep.server.app.notations.GetMapping;
 import arep.server.app.notations.RequestParam;
 import arep.server.app.notations.RestController;
@@ -37,7 +39,7 @@ public class BasicWebFramework {
 
     private void bindFromNotation() {
         try {
-            String controllerPackage = args[0];
+            String controllerPackage = args.toString();
             controllerPackage = "arep.server.app.GreetController"; // Hardcoded for testing purposes
             Class<?> c = Class.forName(controllerPackage);
 
@@ -61,11 +63,12 @@ public class BasicWebFramework {
      * Procesa una solicitud GET y asigna valores a los parámetros anotados
      * con @RequestParam.
      */
-    public String invokeControllerMethod(String path, Map<String, String> queryParams) {
+    public void invokeControllerMethod(String path, Map<String, String> queryParams, ClassicHttpResponse response) {
         try {
             Method method = routeHandler.get(path);
+            System.out.println(path);
             if (method == null) {
-                return "404 Not Found";
+                response.setCode(404);
             }
 
             Object controllerInstance = method.getDeclaringClass().getDeclaredConstructor().newInstance();
@@ -81,11 +84,11 @@ public class BasicWebFramework {
                     args[i] = queryParams.getOrDefault(paramName, defaultValue);
                 }
             }
+            method.invoke(controllerInstance, args);
 
-            return (String) method.invoke(controllerInstance, args);
         } catch (Exception e) {
             e.printStackTrace();
-            return "500 Internal Server Error";
+            response.setCode(500);
         }
     }
 

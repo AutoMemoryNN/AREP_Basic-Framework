@@ -4,7 +4,9 @@ package arep.server.app;
  * Hello world!
  */
 public class App {
+
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        BasicHttpServer server = new BasicHttpServer(args);
+
     }
 }

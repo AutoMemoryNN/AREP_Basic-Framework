@@ -13,7 +13,23 @@ public class BasicWebFramework {
     public HashMap<String, Method> routeHandler;
     private String[] args;
 
-    public BasicWebFramework(String[] args) {
+    private static BasicWebFramework instance;
+
+    public static BasicWebFramework initailize(String[] args) {
+        if (instance == null) {
+            instance = new BasicWebFramework(args);
+        }
+        return instance;
+    }
+
+    public static BasicWebFramework getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("BasicWebFramework not initialized. Call initialize() first.");
+        }
+        return instance;
+    }
+
+    private BasicWebFramework(String[] args) {
         this.args = args;
         routeHandler = new HashMap<>();
         bindFromNotation();

@@ -40,18 +40,41 @@ public class BasicHttpServer {
         String method = request.getMethod();
         if (method.equals("GET")) {
             getRequestHandlers(request, response, context);
+        } else if (method.equals("POST")) {
+            postRequestHandlers(request, response, context);
+
         } else {
             response.setCode(404);
         }
 
     }
 
+    private void postRequestHandlers(ClassicHttpRequest request, ClassicHttpResponse response, HttpContext context) {
+        Map<String, String> queryParams = getQueryParams(request);
+        String path = "";
+        try {
+            path = request.getUri().getPath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        this.webFramework.invokeControllerMethod("POST", path, queryParams, response);
+    }
+
     private void getRequestHandlers(ClassicHttpRequest request, ClassicHttpResponse response, HttpContext context) {
+        Map<String, String> queryParams = getQueryParams(request);
+        String path = "";
+        try {
+            path = request.getUri().getPath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        this.webFramework.invokeControllerMethod("GET", path, queryParams, response);
+    }
+
+    private Map<String, String> getQueryParams(ClassicHttpRequest request) {
         Map<String, String> queryParams = new HashMap<>();
-        String path = null;
         try {
             final String URIQqueryParams = request.getUri().getQuery();
-            path = request.getUri().getPath();
             if (URIQqueryParams != null) {
                 for (String param : URIQqueryParams.split("&")) {
                     String[] entry = param.split("=");
@@ -61,7 +84,6 @@ public class BasicHttpServer {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-
-        this.webFramework.invokeControllerMethod(path, queryParams, response);
+        return queryParams;
     }
 }

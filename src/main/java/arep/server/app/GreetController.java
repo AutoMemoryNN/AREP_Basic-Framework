@@ -1,6 +1,7 @@
 package arep.server.app;
 
 import arep.server.app.notations.GetMapping;
+import arep.server.app.notations.PostMapping;
 import arep.server.app.notations.RequestParam;
 import arep.server.app.notations.RestController;
 
@@ -8,6 +9,12 @@ import arep.server.app.notations.RestController;
 public class GreetController {
     @GetMapping("/greet")
     public String greet(@RequestParam(value = "name", DefaultValue = "Guest") String name) {
+        System.out.println("Hello " + name);
+        return "Hello " + name;
+    }
+
+    @PostMapping("/post")
+    public String greetPost(@RequestParam(value = "name", DefaultValue = "Guest") String name) {
         System.out.println("Hello " + name);
         return "Hello " + name;
     }

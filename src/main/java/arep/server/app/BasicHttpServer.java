@@ -1,5 +1,7 @@
 package arep.server.app;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -7,8 +9,10 @@ import java.util.Map;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 public class BasicHttpServer {
@@ -68,7 +72,45 @@ public class BasicHttpServer {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        this.webFramework.invokeControllerMethod("GET", path, queryParams, response);
+
+        if (path.startsWith("/static/")) {
+            System.out.println("Serving static file: " + path);
+            serveStaticFile(path, response);
+        } else {
+            this.webFramework.invokeControllerMethod("GET", path, queryParams, response);
+        }
+    }
+
+    private void serveStaticFile(String path, ClassicHttpResponse response) {
+        File file = new File("src/main/resources" + path);
+        if (!file.exists()) {
+            System.out.println("File not found: " + file.getAbsolutePath());
+            response.setCode(404);
+            return;
+        }
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            response.setCode(200);
+            response.setEntity(new InputStreamEntity(new FileInputStream(file), file.length(),
+                    ContentType.create(getMimeType(path))));
+        } catch (IOException e) {
+            e.printStackTrace();
+            response.setCode(500);
+        }
+    }
+
+    private String getMimeType(String path) {
+        if (path.endsWith(".png"))
+            return "image/png";
+        if (path.endsWith(".jpg") || path.endsWith(".jpeg"))
+            return "image/jpeg";
+        if (path.endsWith(".html"))
+            return "text/html";
+        if (path.endsWith(".css"))
+            return "text/css";
+        if (path.endsWith(".js"))
+            return "application/javascript";
+        return "application/octet-stream"; // Tipo por defecto
     }
 
     private Map<String, String> getQueryParams(ClassicHttpRequest request) {

@@ -41,8 +41,8 @@ public class BasicWebFramework {
 
     private void bindFromNotation() {
         try {
-            String controllerPackage = args.toString();
-            controllerPackage = "arep.server.app.GreetController"; // Hardcoded for testing purposes
+            String controllerPackage = args[0];
+            System.out.println(controllerPackage);
             Class<?> c = Class.forName(controllerPackage);
 
             if (!c.isAnnotationPresent(RestController.class)) {
@@ -61,6 +61,7 @@ public class BasicWebFramework {
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
